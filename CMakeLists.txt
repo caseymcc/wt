@@ -11,7 +11,7 @@ ENDIF(COMMAND CMAKE_POLICY)
 option(WT_USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
 
 if(WT_USE_HUNTER)
-    include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/HunterGate.cmake)
     
     HunterGate(
         URL "https://github.com/ruslo/hunter/archive/v0.18.40.tar.gz"

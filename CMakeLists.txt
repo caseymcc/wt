@@ -8,16 +8,16 @@ IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0005 OLD)
 ENDIF(COMMAND CMAKE_POLICY)
 
-option(USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
+option(WT_USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
 
-if(USE_HUNTER)
+if(WT_USE_HUNTER)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
     
     HunterGate(
         URL "https://github.com/ruslo/hunter/archive/v0.18.40.tar.gz"
         SHA1 "39689f3082701a9036b865561ae4f60d83db1465"
     )
-endif()
+endif(WT_USE_HUNTER)
 
 PROJECT(WT)
 
@@ -43,14 +43,6 @@ SET(WTDBOFIREBIRD_SOVERSION 41)
 SET(WTDBOMYSQL_SOVERSION 41)
 SET(WTTEST_SOVERSION 11)
 
-IF(NOT SHARED_LIBS)
-  IF(WIN32)
-    OPTION(SHARED_LIBS "Compile shared libraries" OFF)
-  ELSE(WIN32)
-    OPTION(SHARED_LIBS "Compile shared libraries" ON)
-  ENDIF(WIN32)
-ENDIF(NOT SHARED_LIBS)
-
 IF(ANDROID)
   IF(NOT DEFINED ANDROID_SDK_DIR)
     MESSAGE(FATAL_ERROR 
@@ -69,7 +61,7 @@ IF(ANDROID)
     "Your configuration is missing the ANDROID_SDK_TARGET_ID variable. ")
   ENDIF(NOT DEFINED ANDROID_SDK_TARGET_ID)
 
-  SET(SHARED_LIBS OFF)
+  SET(BUILD_SHARED_LIBS OFF)
   add_definitions(-DANDROID -DWT_NO_STD_WSTRING=ON -DWT_NO_STD_LOCALE=ON)
 ENDIF(ANDROID)
 
@@ -164,10 +156,10 @@ IF(WIN32)
   # required for all that uses boost.asio
   ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
 
-  IF(SHARED_LIBS)
+  IF(BUILD_SHARED_LIBS)
     # See http://svn.boost.org/trac/boost/ticket/3465
     SET(WT_NO_BOOST_INTRUSIVE true)
-  ENDIF(SHARED_LIBS)
+  ENDIF(BUILD_SHARED_LIBS)
 
   #Set build directory
   set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/ )
@@ -183,7 +175,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 # Fixup Windows declspec stuff
-IF(NOT SHARED_LIBS)
+IF(NOT BUILD_SHARED_LIBS)
   SET(WT_STATIC true)
   SET(WTHTTP_STATIC true)
   SET(WT_EXT_STATIC true)
@@ -192,13 +184,11 @@ IF(NOT SHARED_LIBS)
   SET(WTDBOPOSTGRES_STATIC true)
   SET(WTDBOFIREBIRD_STATIC true)
   SET(WTDBOMYSQL_STATIC true)
-ENDIF(NOT SHARED_LIBS)
+ENDIF(NOT BUILD_SHARED_LIBS)
 
 IF(NOT MULTI_THREADED)
   OPTION(MULTI_THREADED "Build multi-threaded httpd deamon (if possible)" ON)
 ENDIF(NOT MULTI_THREADED)
-
-SET(BUILD_SHARED_LIBS ${SHARED_LIBS})
 
 # Default is to use cmake's boost discovery. The default will use wt's own
 # boost detection mechanism if one of the following is true:
@@ -500,10 +490,10 @@ FIND_PACKAGE(Doxygen)
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIRS})
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 IF(WIN32)
-  if(USE_HUNTER)
+  if(WT_USE_HUNTER)
     #disable auto link for hunter
     ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
-  endif(USE_HUNTER)
+  endif(WT_USE_HUNTER)
   IF(BOOST_DYNAMIC)
     ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
   ELSE(BOOST_DYNAMIC)

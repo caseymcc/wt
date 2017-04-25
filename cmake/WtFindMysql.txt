@@ -6,14 +6,14 @@
 # Taking into account:
 # - MYSQL_PREFIX
 
-if(USE_HUNTER)
+if(WT_USE_HUNTER)
     hunter_add_package(MySQL-client)
     find_package(MySQL-client REQUIRED)
     
     set(MYSQL_LIB ${MYSQL-CLIENT_LIBRARY})
     set(MYSQL_FOUND ${MYSQL-CLIENT_FOUND})
     set(MYSQL_INCLUDE ${MYSQL-CLIENT_INCLUDE_DIR})
-else(USE_HUNTER)
+else(WT_USE_HUNTER)
     FIND_PATH(MYSQL_INCLUDE mysql.h
         ${MYSQL_PREFIX}/mariadbclient/include
         ${MYSQL_PREFIX}/include/mariadb
@@ -78,7 +78,7 @@ else(USE_HUNTER)
         SET(MYSQL_LIBRARIES)
       ENDIF (MYSQL_INCLUDE AND MYSQL_LIB)
     ENDIF(WIN32)
-endif(USE_HUNTER)
+endif(WT_USE_HUNTER)
 
 INCLUDE (CheckSymbolExists)
 # mariadb 1.0.0 does not have mysql_library_init

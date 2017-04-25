@@ -6,10 +6,10 @@
 # Taking into account:
 # - PNG_PREFIX
 
-if(USE_HUNTER)
+if(WT_USE_HUNTER)
     hunter_add_package(PNG)
     find_package(PNG REQUIRED)
-else(USE_HUNTER)
+else(WT_USE_HUNTER)
     IF(NOT PNG_NAMES)
       SET(PNG_NAMES png libpng png12 libpng12 png14 libpng14)
     ENDIF(NOT PNG_NAMES)
@@ -45,7 +45,7 @@ else(USE_HUNTER)
           ${USERLIB_PREFIX}/lib
       )
     ENDIF(WIN32)
-endif(USE_HUNTER)
+endif(WT_USE_HUNTER)
 
 IF(PNG_LIBRARIES)
   SET(PNG_FOUND TRUE)

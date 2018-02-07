@@ -539,25 +539,24 @@ IF(MULTI_THREADED_BUILD)
   TARGET_LINK_LIBRARIES(wt ${CMAKE_THREAD_LIBS_INIT})
 ENDIF(MULTI_THREADED_BUILD)
 
-set(config_install_dir "lib/cmake/${PROJECT_NAME}")
-set(version_config "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
-set(project_config "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
-set(targets_export_name "${PROJECT_NAME}Targets")
-set(namespace "${PROJECT_NAME}::")
+set(WT_CONFIG_INSTALL_DIR "lib/cmake/${PROJECT_NAME}")
+set(WT_VERSION_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+set(WT_PROJECT_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+set(WT_TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    ${version_config} 
+    ${WT_VERSION_CONFIG} 
     VERSION ${VERSION_SERIES}.${VERSION_MAJOR}.${VERSION_MINOR}
     COMPATIBILITY SameMajorVersion
 )
 
-configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/../cmake/Config.cmake.in" ${project_config} 
-    INSTALL_DESTINATION "${config_install_dir}")
+configure_package_config_file("${CMAKE_CURRENT_LIST_DIR}/../cmake/Config.cmake.in" ${WT_PROJECT_CONFIG} 
+    INSTALL_DESTINATION "${WT_CONFIG_INSTALL_DIR}")
 
 install(
     TARGETS wt
-    EXPORT "${targets_export_name}"
+    EXPORT "${WT_TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
     RUNTIME DESTINATION "bin"
@@ -565,14 +564,14 @@ install(
 )
 
 install(
-    FILES "${project_config}" "${version_config}"
-    DESTINATION "${config_install_dir}"
+    FILES "${WT_PROJECT_CONFIG}" "${WT_VERSION_CONFIG}"
+    DESTINATION "${WT_CONFIG_INSTALL_DIR}"
 )
 
 install(
-    EXPORT "${targets_export_name}"
-    NAMESPACE "${namespace}"
-    DESTINATION "${config_install_dir}"
+    EXPORT "${WT_TARGETS_EXPORT_NAME}"
+    NAMESPACE "${PROJECT_NAME}::"
+    DESTINATION "${WT_CONFIG_INSTALL_DIR}"
 )
 
 CONFIGURE_FILE(

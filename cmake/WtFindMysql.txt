@@ -8,11 +8,12 @@
 
 if(WT_USE_HUNTER)
     hunter_add_package(MySQL-client)
-    find_package(MySQL-client REQUIRED)
+    find_package(MySQL-client CONFIG REQUIRED)
     
-    set(MYSQL_LIB ${MYSQL-CLIENT_LIBRARY})
-    set(MYSQL_FOUND ${MYSQL-CLIENT_FOUND})
-    set(MYSQL_INCLUDE ${MYSQL-CLIENT_INCLUDE_DIR})
+    set(MYSQL_LIB ${MySQL-client_LIBRARY})
+    set(MYSQL_FOUND ${MySQL-client_FOUND})
+    set(MYSQL_INCLUDE ${MySQL-client_INCLUDE_DIR})
+
 else(WT_USE_HUNTER)
     FIND_PATH(MYSQL_INCLUDE mysql.h
         ${MYSQL_PREFIX}/mariadbclient/include

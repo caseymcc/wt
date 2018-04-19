@@ -466,6 +466,8 @@ IF(ENABLE_LIBWTTEST)
 
   IF(MSVC)
     SET_TARGET_PROPERTIES(wttest PROPERTIES COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267")
+    #need to turn off auto linking for boost
+    target_compile_definitions(wt PUBLIC "BOOST_ALL_NO_LIB=1")
   ENDIF(MSVC)
 
   SET_TARGET_PROPERTIES(

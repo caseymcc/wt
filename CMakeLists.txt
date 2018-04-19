@@ -6,6 +6,7 @@ IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0002 OLD)
   CMAKE_POLICY(SET CMP0003 OLD)
   CMAKE_POLICY(SET CMP0005 OLD)
+  CMAKE_POLICY(SET CMP0048 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
 option(WT_USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
@@ -14,8 +15,11 @@ if(WT_USE_HUNTER)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/HunterGate.cmake)
     
     HunterGate(
-        URL "https://github.com/ruslo/hunter/archive/v0.18.40.tar.gz"
-        SHA1 "39689f3082701a9036b865561ae4f60d83db1465"
+#       URL "https://github.com/ruslo/hunter/archive/v0.18.40.tar.gz"
+#       SHA1 "39689f3082701a9036b865561ae4f60d83db1465"
+        URL "https://github.com/caseymcc/hunter/archive/mysql_test.tar.gz"
+        SHA1 "9aa134cf5a0713141097a5837204c291970134fd"
+        
     )
 endif(WT_USE_HUNTER)
 
@@ -193,7 +197,7 @@ ENDIF(NOT MULTI_THREADED)
 # Default is to use cmake's boost discovery. The default will use wt's own
 # boost detection mechanism if one of the following is true:
 # - cmake version is too old (prior to 2.6 series)
-# - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing
+# - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing  
 #   build scripts)
 # - USE_BOOST_FRAMEWORK: we've adapted the vintage boost cmake find
 #   script to locate a boost.framework
@@ -492,7 +496,7 @@ LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 IF(WIN32)
   if(WT_USE_HUNTER)
     #disable auto link for hunter
-    ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+#    ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
   endif(WT_USE_HUNTER)
   IF(BOOST_DYNAMIC)
     ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)

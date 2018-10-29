@@ -1,0 +1,86 @@
+# This file sets:
+# - BOOST_INCLUDE_DIRS
+# - BOOST_LIB_DIRS
+# - BOOST_WT_FOUND  // All dependencies for wt found
+# - BOOST_WT_MT_FOUND
+# - BOOST_WTHTTP_FOUND // All dependencies for wthttp found
+# - BOOST_WTHTTP_MT_FOUND
+# - BOOST_SUPPORT_LIBRARIES (should always be added to the boost libs)
+# - BOOST_WT_LIBRARIES
+# This file sets:
+# - BOOST_INCLUDE_DIRS
+# - BOOST_LIB_DIRS
+# - BOOST_WT_FOUND  // All dependencies for wt found
+# - BOOST_WT_MT_FOUND
+# - BOOST_WTHTTP_FOUND // All dependencies for wthttp found
+# - BOOST_WTHTTP_MT_FOUND
+# - BOOST_SUPPORT_LIBRARIES (should always be added to the boost libs)
+# - BOOST_WT_LIBRARIES
+#
+# Separate compiled boost libraries are also discovered:
+# - BOOST_DT_LIB
+# - BOOST_FS_LIB
+# - BOOST_REGEX_LIB
+# - BOOST_PO_LIB
+# - BOOST_SIGNALS_LIB
+# - BOOST_SYSTEM_LIB
+# - BOOST_THREAD_LIB (only if BOOST_MT_FOUND)
+# Boost will try to find the same kind (mt or not) of library for all three
+# of these libraries. Boost is considered to be found successfully only
+# when the libraries are all of the same kind (mt or not). If the mt
+# libraries exits, the mt versions will be used unless MULTI_THREADED is
+# set to OFF. Otherwise, the non-mt versions will be used.
+#
+
+# For starters, see if the cmake-provided scripts are able to find boost
+
+SET(Boost_COMPONENTS
+    date_time
+    regex
+    program_options
+    signals
+    system
+    filesystem
+    thread
+)
+IF(NOT WT_NO_BOOST_RANDOM)
+  SET(Boost_COMPONENTS
+    ${Boost_COMPONENTS}
+    random
+  )
+ENDIF(NOT WT_NO_BOOST_RANDOM)
+
+hunter_add_package(Boost COMPONENTS ${Boost_COMPONENTS})
+find_package(Boost CONFIG REQUIRED ${Boost_COMPONENTS})
+
+IF (Boost_FOUND)
+# Translate variables from official hunter names to internally used names
+    SET(BOOST_INCLUDE_DIRS "") #should be included with library targets
+    IF(NOT WT_NO_BOOST_RANDOM)
+        SET(BOOST_RANDOM_LIB Boost::random)
+    ENDIF(NOT WT_NO_BOOST_RANDOM)
+
+    SET(BOOST_WT_MT_FOUND TRUE)
+    SET(BOOST_WT_FOUND TRUE)
+    SET(BOOST_WTHTTP_MT_FOUND TRUE)
+    SET(BOOST_WTHTTP_FOUND TRUE)
+    
+    #set libraries to targets
+    SET(BOOST_WT_LIBRARIES
+        Boost::thread
+        ${WT_NO_BOOST_RANDOM}
+        Boost::regex
+        Boost::signals
+        Boost::system
+        Boost::filesystem
+        Boost::date_time
+    )
+    
+    SET(BOOST_WTHTTP_LIBRARIES
+        Boost::thread
+        Boost::program_options
+        Boost::system
+        Boost::filesystem
+        Boost::date_time
+    )
+ENDIF (Boost_FOUND)

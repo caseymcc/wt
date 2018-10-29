@@ -14,7 +14,18 @@ IF(COMMAND CMAKE_POLICY)
   endif(POLICY CMP0022)
 ENDIF(COMMAND CMAKE_POLICY)
 
-PROJECT(WT)
+option(WT_USE_HUNTER "Enable Hunter CMake package handler, auto downloads and compiles require packages" OFF)
+
+if(WT_USE_HUNTER)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/HunterGate.cmake)
+    
+    HunterGate(
+	    URL "https://github.com/ruslo/hunter/archive/v0.23.27.tar.gz"
+	    SHA1 "70d75a25f895df3da00d8382417e8c2a08c93173"
+	)
+endif(WT_USE_HUNTER)
+
+PROJECT(WT VERSION 4.0.4)
 
 SET(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
@@ -22,9 +33,9 @@ SET(CMAKE_MODULE_PATH
   ${WT_SOURCE_DIR}/cmake
 )
 
-SET(VERSION_SERIES 4)
-SET(VERSION_MAJOR 0)
-SET(VERSION_MINOR 4)
+SET(VERSION_SERIES ${PROJECT_VERSION_MAJOR})
+SET(VERSION_MAJOR ${PROJECT_VERSION_MINOR})
+SET(VERSION_MINOR ${PROJECT_VERSION_PATCH})
 
 SET(WT_SOVERSION 49)
 SET(WTHTTP_SOVERSION 49)
@@ -37,14 +48,6 @@ SET(WTDBOFIREBIRD_SOVERSION 49)
 SET(WTDBOMYSQL_SOVERSION 49)
 SET(WTDBOMSSQLSERVER_SOVERSION 49)
 SET(WTTEST_SOVERSION 19)
-
-IF(NOT SHARED_LIBS)
-  IF(WIN32)
-    OPTION(SHARED_LIBS "Compile shared libraries" OFF)
-  ELSE(WIN32)
-    OPTION(SHARED_LIBS "Compile shared libraries" ON)
-  ENDIF(WIN32)
-ENDIF(NOT SHARED_LIBS)
 
 IF(ANDROID)
   IF(NOT DEFINED ANDROID_SDK_DIR)
@@ -64,7 +67,7 @@ IF(ANDROID)
     "Your configuration is missing the ANDROID_SDK_TARGET_ID variable. ")
   ENDIF(NOT DEFINED ANDROID_SDK_TARGET_ID)
 
-  SET(SHARED_LIBS OFF)
+  SET(BUILD_SHARED_LIBS OFF)
   add_definitions(-DANDROID) # TODO(Roel): WT_NO_STD_WSTRING/WT_NO_STD_LOCALE?
 ENDIF(ANDROID)
 
@@ -144,14 +147,26 @@ IF(WIN32)
   # required for all that uses boost.asio
   ADD_DEFINITIONS(-D_WIN32_WINNT=0x0600)
 
-  IF(SHARED_LIBS)
+  IF(BUILD_SHARED_LIBS)
     # See http://svn.boost.org/trac/boost/ticket/3465
     SET(WT_NO_BOOST_INTRUSIVE true)
-  ENDIF(SHARED_LIBS)
+  ENDIF(BUILD_SHARED_LIBS)
+
+  #Set build directory
+  set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/ )
+  set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/ )
+  set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/ )
+  # Second, for multi-config builds (e.g. msvc)
+  foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${PROJECT_BINARY_DIR}/bin/${OUTPUTCONFIG}/ )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${PROJECT_BINARY_DIR}/lib/${OUTPUTCONFIG}/ )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${PROJECT_BINARY_DIR}/lib/${OUTPUTCONFIG}/ )
+  endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 ENDIF(WIN32)
 
 # Fixup Windows declspec stuff
-IF(NOT SHARED_LIBS)
+IF(NOT BUILD_SHARED_LIBS)
   SET(WT_STATIC true)
   SET(WTHTTP_STATIC true)
   SET(WT_EXT_STATIC true)
@@ -161,18 +176,16 @@ IF(NOT SHARED_LIBS)
   SET(WTDBOFIREBIRD_STATIC true)
   SET(WTDBOMYSQL_STATIC true)
   SET(WTDBOMSSQLSERVER_STATIC true)
-ENDIF(NOT SHARED_LIBS)
+ENDIF(NOT BUILD_SHARED_LIBS)
 
 IF(NOT MULTI_THREADED)
   OPTION(MULTI_THREADED "Build multi-threaded httpd deamon (if possible)" ON)
 ENDIF(NOT MULTI_THREADED)
 
-SET(BUILD_SHARED_LIBS ${SHARED_LIBS})
-
 # Default is to use cmake's boost discovery. The default will use wt's own
 # boost detection mechanism if one of the following is true:
 # - cmake version is too old (prior to 2.6 series)
-# - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing
+# - BOOST_COMPILER or BOOST_VERSION was defined (compatibility with existing  
 #   build scripts)
 # - USE_BOOST_FRAMEWORK: we've adapted the vintage boost cmake find
 #   script to locate a boost.framework
@@ -492,6 +505,10 @@ FIND_PACKAGE(Doxygen)
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIRS})
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 IF(WIN32)
+  if(WT_USE_HUNTER)
+    #disable auto link for hunter
+#    ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+  endif(WT_USE_HUNTER)
   IF(BOOST_DYNAMIC)
     ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
   ELSE(BOOST_DYNAMIC)

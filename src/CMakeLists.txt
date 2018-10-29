@@ -466,8 +466,6 @@ IF(ENABLE_LIBWTTEST)
 
   IF(MSVC)
     SET_TARGET_PROPERTIES(wttest PROPERTIES COMPILE_FLAGS "${BUILD_PARALLEL} /wd4251 /wd4275 /wd4355 /wd4800 /wd4996 /wd4101 /wd4267")
-    #need to turn off auto linking for boost
-    target_compile_definitions(wt PUBLIC "BOOST_ALL_NO_LIB=1")
   ENDIF(MSVC)
 
   SET_TARGET_PROPERTIES(
@@ -481,9 +479,17 @@ ELSE(ENABLE_LIBWTTEST)
   MESSAGE("** Not building libwttest")
 ENDIF(ENABLE_LIBWTTEST)
 
+IF(MSVC)
+  #need to turn off auto linking for boost
+  target_compile_definitions(wt PUBLIC "BOOST_ALL_NO_LIB=1")
+ENDIF(MSVC)
+
 IF(HAVE_SSL)
   TARGET_LINK_LIBRARIES(wt ${SSL_LIBRARIES})
   INCLUDE_DIRECTORIES(${SSL_INCLUDE_DIRS})
+  IF(OPENSSL_FOUND AND WIN32) #openssl needs crypt32
+    TARGET_LINK_LIBRARIES(wt "crypt32")
+  ENDIF()
 ELSE(HAVE_SSL)
   MESSAGE("** Disabling crypto support (Auth::SHA1HashFunction, HTTPS support): requires OpenSSL.")
   IF(ENABLE_SSL)
